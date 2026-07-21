@@ -49,7 +49,7 @@ Everything below is just *filling in the blanks* that `setup.sh` created.
 
 1. Open Telegram and search for **`@BotFather`** (the one with the blue checkmark).
 2. Send `/newbot`.
-3. Give it a name (e.g. `My Namecard Bot`) and a username ending in `bot` (e.g. `daphne_namecard_bot`).
+3. Give it a name (e.g. `My Namecard Bot`) and a username ending in `bot` (e.g. `my_namecard_bot`).
 4. BotFather replies with a **token** that looks like `8342xxxxxx:AAH...`. **Copy it.**
 5. Paste it into your `.env` file on the `TELEGRAM_TOKEN=` line.
 
