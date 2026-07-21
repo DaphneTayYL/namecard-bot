@@ -6,6 +6,9 @@ Turn a phone photo of a business card into a clean CRM contact — in about 10 s
 
 Perfect for conferences, meetups, and sales events where you're collecting a stack of cards and don't want to type them up later.
 
+### 👉 New here? **[Open the click-through setup guide →](https://daphnetayyl.github.io/namecard-bot/)**
+A dummy-proof, next-next-next walkthrough that gets you running in ~15 minutes. Or follow the same steps in text below.
+
 ---
 
 ## ⚠️ Read this first (30 seconds)
