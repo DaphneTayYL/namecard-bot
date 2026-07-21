@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Namecard Bot — Setup Walkthrough</title>
+<style>
+  :root{
+    --paper:#eef0ec; --card:#ffffff; --card-edge:#e2e5df;
+    --ink:#1a1e1b; --muted:#5c645f; --faint:#8a908b;
+    --accent:#0d7368; --accent-deep:#0a5a52; --accent-soft:#d9ece9;
+    --stamp:#c8442e; --amber:#b9820b; --good:#16a34a;
+    --tab:#0d7368; --shadow:24px 24px 60px rgba(20,40,36,.10);
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --paper:#101413; --card:#191f1c; --card-edge:#28302c;
+      --ink:#e9ece8; --muted:#9aa39d; --faint:#6c746e;
+      --accent:#2ba99b; --accent-deep:#28b8a7; --accent-soft:#123430;
+      --stamp:#e06a54; --amber:#d3a441; --good:#3ec07a;
+      --tab:#2ba99b; --shadow:24px 24px 60px rgba(0,0,0,.45);
+    }
+  }
+  :root[data-theme="light"]{
+    --paper:#eef0ec; --card:#ffffff; --card-edge:#e2e5df;
+    --ink:#1a1e1b; --muted:#5c645f; --faint:#8a908b;
+    --accent:#0d7368; --accent-deep:#0a5a52; --accent-soft:#d9ece9;
+    --stamp:#c8442e; --amber:#b9820b; --good:#16a34a;
+    --tab:#0d7368; --shadow:24px 24px 60px rgba(20,40,36,.10);
+  }
+  :root[data-theme="dark"]{
+    --paper:#101413; --card:#191f1c; --card-edge:#28302c;
+    --ink:#e9ece8; --muted:#9aa39d; --faint:#6c746e;
+    --accent:#2ba99b; --accent-deep:#28b8a7; --accent-soft:#123430;
+    --stamp:#e06a54; --amber:#d3a441; --good:#3ec07a;
+    --tab:#2ba99b; --shadow:24px 24px 60px rgba(0,0,0,.45);
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--paper); color:var(--ink); font-family:var(--sans);
+    line-height:1.55; -webkit-font-smoothing:antialiased;
+    min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    padding:32px 20px 64px;
+    background-image:radial-gradient(circle at 1px 1px, color-mix(in srgb,var(--ink) 6%, transparent) 1px, transparent 0);
+    background-size:26px 26px;
+  }
+  .wrap{width:100%; max-width:660px}
+
+  /* Masthead */
+  .mast{display:flex; align-items:center; gap:12px; margin:4px 2px 20px}
+  .mast .glyph{
+    width:42px;height:42px;border-radius:10px;flex:0 0 auto;
+    background:var(--accent); color:#fff; display:grid; place-items:center;
+    font-size:22px; box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 40%, transparent);
+  }
+  .mast h1{font-size:17px; margin:0; letter-spacing:-.01em}
+  .mast p{margin:1px 0 0; font-size:12.5px; color:var(--muted)}
+  .theme-btn{
+    margin-left:auto; border:1px solid var(--card-edge); background:var(--card);
+    color:var(--muted); border-radius:8px; padding:7px 10px; font-size:12px;
+    cursor:pointer; font-family:var(--mono);
+  }
+  .theme-btn:hover{color:var(--ink); border-color:var(--accent)}
+
+  /* Progress rail */
+  .rail{display:flex; gap:5px; margin:0 2px 18px}
+  .seg{height:5px; flex:1; border-radius:3px; background:var(--card-edge); transition:background .3s, transform .3s}
+  .seg.done{background:var(--accent)}
+  .seg.cur{background:var(--accent); transform:scaleY(1.5)}
+
+  /* Card */
+  .card{
+    position:relative; background:var(--card); border:1px solid var(--card-edge);
+    border-radius:16px; box-shadow:var(--shadow); padding:30px 30px 26px;
+    overflow:hidden;
+  }
+  .card::before{
+    content:""; position:absolute; left:0; top:0; bottom:0; width:5px; background:var(--tab);
+  }
+  .eyebrow{
+    font-family:var(--mono); font-size:11.5px; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--accent); display:flex; align-items:center; gap:9px; margin-bottom:12px;
+  }
+  .eyebrow .n{
+    background:var(--accent); color:#fff; border-radius:5px; padding:2px 7px;
+    font-size:11px; letter-spacing:.04em;
+  }
+  .card h2{font-size:25px; line-height:1.15; letter-spacing:-.02em; margin:0 0 6px; text-wrap:balance}
+  .lede{color:var(--muted); font-size:15px; margin:0 0 20px}
+  .card h2 + .lede{margin-top:2px}
+
+  /* Chips / stamps */
+  .stamps{display:flex; flex-wrap:wrap; gap:7px; margin:-4px 0 18px}
+  .stamp{
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase;
+    padding:4px 9px; border-radius:20px; border:1px solid; display:inline-flex; gap:6px; align-items:center;
+  }
+  .stamp.req{color:var(--stamp); border-color:color-mix(in srgb,var(--stamp) 45%, transparent); background:color-mix(in srgb,var(--stamp) 9%, transparent)}
+  .stamp.rec{color:var(--amber); border-color:color-mix(in srgb,var(--amber) 45%, transparent); background:color-mix(in srgb,var(--amber) 10%, transparent)}
+  .stamp.time{color:var(--muted); border-color:var(--card-edge)}
+
+  /* Ordered instructions */
+  ol.steps{list-style:none; counter-reset:s; margin:0; padding:0; display:flex; flex-direction:column; gap:13px}
+  ol.steps li{position:relative; padding-left:34px; counter-increment:s; font-size:15px}
+  ol.steps li::before{
+    content:counter(s); position:absolute; left:0; top:-1px; width:23px; height:23px;
+    border-radius:50%; background:var(--accent-soft); color:var(--accent-deep);
+    font-family:var(--mono); font-size:12px; font-weight:600; display:grid; place-items:center;
+  }
+  ol.steps li b{font-weight:650}
+  .sub{list-style:none; margin:8px 0 0; padding:0; display:flex; flex-direction:column; gap:6px}
+  .sub li{padding-left:18px; font-size:14px; color:var(--muted); position:relative; counter-increment:none}
+  .sub li::before{content:"–"; position:absolute; left:2px; top:0; width:auto; height:auto; background:none; color:var(--faint)}
+
+  a{color:var(--accent); text-decoration:none; border-bottom:1px solid color-mix(in srgb,var(--accent) 35%, transparent)}
+  a:hover{border-bottom-color:var(--accent)}
+
+  /* Command / value chip */
+  .cmd{
+    display:flex; align-items:center; gap:10px; margin:9px 0 2px;
+    background:var(--paper); border:1px solid var(--card-edge); border-radius:9px;
+    padding:9px 10px 9px 13px; font-family:var(--mono); font-size:13px; overflow-x:auto;
+  }
+  .cmd code{white-space:nowrap; color:var(--ink)}
+  .cmd .prompt{color:var(--faint); user-select:none}
+  .copy{
+    margin-left:auto; flex:0 0 auto; border:1px solid var(--card-edge); background:var(--card);
+    color:var(--muted); border-radius:6px; padding:5px 9px; font-size:11px; cursor:pointer;
+    font-family:var(--mono); letter-spacing:.03em;
+  }
+  .copy:hover{color:var(--accent); border-color:var(--accent)}
+  .copy.ok{color:#fff; background:var(--good); border-color:var(--good)}
+
+  /* Callout */
+  .note{
+    display:flex; gap:11px; margin:16px 0 2px; padding:12px 14px; border-radius:10px;
+    background:var(--accent-soft); font-size:13.5px; color:var(--ink);
+    border:1px solid color-mix(in srgb,var(--accent) 22%, transparent);
+  }
+  .note.warn{background:color-mix(in srgb,var(--stamp) 9%, transparent); border-color:color-mix(in srgb,var(--stamp) 30%, transparent)}
+  .note .ic{flex:0 0 auto; font-size:15px; line-height:1.4}
+  .note b{font-weight:650}
+
+  /* Field-target pill: which .env line to paste into */
+  .target{
+    display:inline-flex; align-items:center; gap:7px; margin-top:11px;
+    font-family:var(--mono); font-size:12px; color:var(--muted);
+    background:var(--paper); border:1px dashed var(--card-edge); border-radius:7px; padding:6px 10px;
+  }
+  .target b{color:var(--accent); font-weight:600}
+
+  /* Connect table on intro */
+  .connect{width:100%; border-collapse:collapse; margin:4px 0 4px; font-size:14px}
+  .connect td{padding:10px 8px; border-top:1px solid var(--card-edge); vertical-align:top}
+  .connect tr:first-child td{border-top:none}
+  .connect .who{font-weight:600; white-space:nowrap}
+  .connect .tag{font-family:var(--mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase; white-space:nowrap; color:var(--muted)}
+  .connect .tag.r{color:var(--stamp)} .connect .tag.o{color:var(--amber)}
+
+  /* Footer nav */
+  .nav{display:flex; align-items:center; gap:12px; margin-top:22px}
+  .btn{
+    font-family:var(--sans); font-size:14.5px; font-weight:600; border-radius:10px;
+    padding:12px 20px; cursor:pointer; border:1px solid transparent; transition:transform .06s, background .2s;
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn.next{background:var(--accent); color:#fff; margin-left:auto; box-shadow:0 6px 16px color-mix(in srgb,var(--accent) 34%, transparent)}
+  .btn.next:hover{background:var(--accent-deep)}
+  .btn.back{background:transparent; color:var(--muted); border-color:var(--card-edge)}
+  .btn.back:hover{color:var(--ink)}
+  .btn.back[disabled]{opacity:0; pointer-events:none}
+  .counter{font-family:var(--mono); font-size:12px; color:var(--faint); letter-spacing:.04em}
+
+  .foot{margin:22px 4px 0; text-align:center; font-size:12px; color:var(--faint)}
+  .foot a{color:var(--muted)}
+
+  @media (max-width:520px){
+    body{padding:22px 13px 48px}
+    .card{padding:24px 20px 22px; border-radius:14px}
+    .card h2{font-size:22px}
+    .btn{padding:11px 15px; font-size:14px}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="mast">
+    <div class="glyph">📇</div>
+    <div>
+      <h1>Namecard Bot</h1>
+      <p>Business cards → your CRM, from Telegram. Set it up in ~15 min.</p>
+    </div>
+    <button class="theme-btn" id="themeBtn" type="button">◑ theme</button>
+  </div>
+
+  <div class="rail" id="rail"></div>
+
+  <main class="card" id="card" aria-live="polite"></main>
+
+  <nav class="nav">
+    <button class="btn back" id="back" type="button">← Back</button>
+    <span class="counter" id="counter"></span>
+    <button class="btn next" id="next" type="button">Start setup →</button>
+  </nav>
+
+  <p class="foot">
+    Prefer text? Read the <a id="readmeLink" href="#" target="_blank" rel="noopener">README on GitHub</a>.
+    &nbsp;·&nbsp; No secrets live in this project — you connect your own accounts.
+  </p>
+</div>
+
+<script>
+// ---- point these at the repo once it exists ----
+const OWNER = "DaphneTayYL";
+const REPO  = "namecard-bot";
+const REPO_URL = `https://github.com/${OWNER}/${REPO}`;
+const CLONE   = `git clone ${REPO_URL}.git`;
+
+const cmd = (c, prompt="$") =>
+  `<div class="cmd"><span class="prompt">${prompt}</span><code>${c.replace(/</g,"&lt;")}</code>`
+  + `<button class="copy" data-copy="${c.replace(/"/g,"&quot;")}" type="button">copy</button></div>`;
+
+const envTarget = (line) => `<span class="target">paste into <b>.env</b> → <b>${line}</b></span>`;
+
+const STEPS = [
+  { // 0 — intro
+    eyebrow:"Start here", title:"Let’s stand up your card scanner",
+    lede:"You’ll connect a few of your own accounts. Nothing here is pre-linked to anyone — this project holds no secrets. Here’s the whole checklist:",
+    body:`
+      <table class="connect">
+        <tr><td class="who">Your Telegram bot</td><td>The private bot you’ll message.</td><td class="tag r">Required</td></tr>
+        <tr><td class="who">Claude API key</td><td>Reads the text off each card photo.</td><td class="tag r">Required</td></tr>
+        <tr><td class="who">Google Sheet</td><td>One clean row per contact — your master list.</td><td class="tag o">Recommended</td></tr>
+        <tr><td class="who">A CRM (HubSpot)</td><td>Auto-creates the contact + logs a note.</td><td class="tag o">Recommended</td></tr>
+      </table>
+      <div class="note"><span class="ic">💡</span><div>Every step is copy-paste. You can start with just the two required pieces and add the Sheet + CRM later — the bot prints exactly what’s connected when it starts.</div></div>`,
+    next:"Start setup →"
+  },
+  { // 1 — get code
+    eyebrow:"Step 1 · 1 min", title:"Get the code onto your computer",
+    lede:"Open your Terminal (Mac: ⌘+Space, type “Terminal”). Then either clone with git…",
+    body:`
+      ${cmd(CLONE)}
+      ${cmd("cd "+REPO)}
+      <div class="note"><span class="ic">📦</span><div><b>No git?</b> On the <a href="${REPO_URL}" target="_blank" rel="noopener">repo page</a> click the green <b>Code ▾ → Download ZIP</b>, unzip it, then <code>cd</code> into the folder.</div></div>`,
+  },
+  { // 2 — install
+    eyebrow:"Step 2 · 2 min", title:"Install it (one command)",
+    lede:"This sets up everything and creates your personal settings file (.env).",
+    body:`
+      ${cmd("bash setup.sh")}
+      <ul class="sub" style="margin-top:14px">
+        <li>Installs the bot’s dependencies into a local folder.</li>
+        <li>Creates a <code>.env</code> file — that’s where every key below goes.</li>
+      </ul>
+      <div class="note"><span class="ic">✅</span><div>When it finishes you’ll see <b>“Setup done.”</b> Leave the Terminal open — you’ll come back to it at the end.</div></div>`,
+  },
+  { // 3 — telegram
+    eyebrow:"Step 3 · 2 min", title:"Create your own Telegram bot",
+    stamps:`<span class="stamp req">● Required</span>`,
+    lede:"This is your private bot. You’ll be the only one messaging it.",
+    body:`
+      <ol class="steps">
+        <li>In Telegram, search for <b>@BotFather</b> (blue checkmark) and open the chat.</li>
+        <li>Send <b>/newbot</b>. Give it a name, then a username ending in <b>bot</b>.</li>
+        <li>BotFather replies with a <b>token</b> like <code>8342…:AAH…</code>. Copy it.</li>
+      </ol>
+      ${envTarget("TELEGRAM_TOKEN=")}
+      <div class="note warn"><span class="ic">🔒</span><div>That token <b>is</b> your bot — keep it private. It’s already ignored by git so it can’t be committed.</div></div>`,
+  },
+  { // 4 — claude key
+    eyebrow:"Step 4 · 2 min", title:"Get a Claude (Anthropic) API key",
+    stamps:`<span class="stamp req">● Required</span>`,
+    lede:"This is the “eyes” that read each business card.",
+    body:`
+      <ol class="steps">
+        <li>Go to <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a> and sign in.</li>
+        <li>Open <b>Settings → API keys → Create key</b>.</li>
+        <li>Copy the key — it starts with <code>sk-ant-</code>.</li>
+      </ol>
+      ${envTarget("ANTHROPIC_API_KEY=")}
+      <div class="note"><span class="ic">💸</span><div>Each card scan costs a fraction of a cent on the default fast model. Effectively free for personal use.</div></div>`,
+  },
+  { // 5 — google sheet
+    eyebrow:"Step 5 · 5 min", title:"Connect a Google Sheet",
+    stamps:`<span class="stamp rec">◆ Recommended</span>`,
+    lede:"Your tidy master list — one row per card. Two small parts: get the sheet ID, then give the bot its own key.",
+    body:`
+      <ol class="steps">
+        <li><b>Make a blank Google Sheet.</b> Its ID is the long code in the URL between <code>/d/</code> and <code>/edit</code>.
+          ${envTarget("GOOGLE_SHEET_ID=")}
+        </li>
+        <li><b>Create a service account</b> (the bot’s own Google identity) at <a href="https://console.cloud.google.com" target="_blank" rel="noopener">console.cloud.google.com</a>:
+          <ul class="sub">
+            <li>Make/pick a project → search <b>“Google Sheets API” → Enable</b>.</li>
+            <li><b>IAM &amp; Admin → Service Accounts → Create</b>. Name it <code>namecard-bot</code>.</li>
+            <li>Open it → <b>Keys → Add Key → JSON</b>. A file downloads.</li>
+            <li>Rename that file to <b>google-creds.json</b> and drop it in the project folder.</li>
+          </ul>
+        </li>
+        <li><b>Share the sheet with the bot.</b> Open <code>google-creds.json</code>, copy the <code>client_email</code>, then in your Sheet click <b>Share</b> → paste it → <b>Editor</b>.</li>
+      </ol>
+      <div class="note warn"><span class="ic">🔑</span><div><b>Don’t skip step 3.</b> If you forget to share the sheet, the bot can’t write to it — this is the #1 thing people miss.</div></div>`,
+  },
+  { // 6 — hubspot
+    eyebrow:"Step 6 · 3 min", title:"Connect your CRM (HubSpot)",
+    stamps:`<span class="stamp rec">◆ Recommended</span>`,
+    lede:"So every card also lands in your CRM as a real contact, with a note.",
+    body:`
+      <ol class="steps">
+        <li>In HubSpot: <b>Settings ⚙ → Integrations → Private Apps → Create a private app</b>. Name it <code>Namecard Bot</code>.</li>
+        <li>On the <b>Scopes</b> tab, tick these three:
+          <ul class="sub">
+            <li><code>crm.objects.contacts.read</code></li>
+            <li><code>crm.objects.contacts.write</code></li>
+            <li><code>crm.objects.notes.write</code></li>
+          </ul>
+        </li>
+        <li>Create the app and copy the <b>access token</b> (<code>pat-na1-…</code>).</li>
+      </ol>
+      ${envTarget("HUBSPOT_TOKEN=")}
+      <div class="note"><span class="ic">🔁</span><div><b>Different CRM?</b> The CRM logic is one function (<code>upsert_hubspot_contact</code>) in <code>namecard_bot.py</code> — swap it for Salesforce/Pipedrive/etc. Or skip this and let the Google Sheet be your list.</div></div>`,
+  },
+  { // 7 — lock
+    eyebrow:"Step 7 · 1 min", title:"Lock the bot to just you",
+    stamps:`<span class="stamp rec">◆ Recommended</span>`,
+    lede:"Otherwise anyone who finds your bot could push junk into your CRM.",
+    body:`
+      <ol class="steps">
+        <li>In Telegram, message <b>@userinfobot</b> — it replies with your numeric ID.</li>
+        <li>Put that number in your <code>.env</code> (comma-separate for teammates).</li>
+      </ol>
+      ${envTarget("ALLOWED_USER_IDS=123456789")}`,
+  },
+  { // 8 — run
+    eyebrow:"Step 8 · 30 sec", title:"Start it up",
+    lede:"Back in the Terminal you left open:",
+    body:`
+      ${cmd("bash run.sh")}
+      <p style="font-size:14px;color:var(--muted);margin:14px 0 0">It prints a check-list — a <b>✓</b> next to each thing you connected. Then, in Telegram, open your bot and hit <b>/start</b>.</p>
+      <div class="note"><span class="ic">🖥️</span><div>The bot runs only while this Terminal window is open. Close it and the bot goes offline (fine for a single event). Want always-on? See the README’s deploy note.</div></div>`,
+    next:"I’m running →"
+  },
+  { // 9 — done
+    eyebrow:"You’re live", title:"That’s it — go collect some cards 🎉",
+    lede:"At an event, the loop is:",
+    body:`
+      <ol class="steps">
+        <li><b>Tag the event once:</b> send <code>/event LegalTech NYC 2026</code>.</li>
+        <li><b>Snap a business card</b> and send the photo.</li>
+        <li>Add <b>notes</b> (or send <code>skip</code>), then tap <b>🔴 / 🟡 / 🟢</b> priority.</li>
+        <li>Done — it’s in your Sheet <i>and</i> CRM, tagged with the event.</li>
+      </ol>
+      <div class="note"><span class="ic">📖</span><div>Stuck on anything? The <a href="${REPO_URL}#readme" target="_blank" rel="noopener">README</a> has a troubleshooting table for every common hiccup.</div></div>`,
+    next:"Restart guide ↺", last:true
+  },
+];
+
+const card = document.getElementById("card");
+const rail = document.getElementById("rail");
+const backBtn = document.getElementById("back");
+const nextBtn = document.getElementById("next");
+const counter = document.getElementById("counter");
+document.getElementById("readmeLink").href = REPO_URL + "#readme";
+
+let i = Math.min(parseInt(localStorage.getItem("nc_step")||"0",10)||0, STEPS.length-1);
+
+function render(){
+  const s = STEPS[i];
+  card.innerHTML =
+    `<div class="eyebrow"><span class="n">${i===0?"·":i}${i===0?"":" / "+(STEPS.length-2)}</span>${s.eyebrow}</div>`
+    + `<h2>${s.title}</h2>`
+    + (s.stamps?`<div class="stamps">${s.stamps}</div>`:"")
+    + (s.lede?`<p class="lede">${s.lede}</p>`:"")
+    + (s.body||"");
+  // rail
+  rail.innerHTML = STEPS.map((_,k)=>`<span class="seg ${k<i?"done":""} ${k===i?"cur":""}"></span>`).join("");
+  // nav
+  backBtn.disabled = i===0;
+  nextBtn.textContent = s.next || "Next →";
+  counter.textContent = i===0 ? "" : `${i} of ${STEPS.length-1}`;
+  localStorage.setItem("nc_step", i);
+  card.scrollIntoView({block:"nearest"});
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+function go(d){
+  const s = STEPS[i];
+  if(d>0 && s.last){ i=0; } else { i=Math.max(0, Math.min(STEPS.length-1, i+d)); }
+  render();
+}
+nextBtn.addEventListener("click", ()=>go(1));
+backBtn.addEventListener("click", ()=>go(-1));
+document.addEventListener("keydown", e=>{
+  if(e.key==="ArrowRight") go(1);
+  if(e.key==="ArrowLeft") go(-1);
+});
+card.addEventListener("click", async e=>{
+  const b = e.target.closest(".copy"); if(!b) return;
+  try{
+    await navigator.clipboard.writeText(b.dataset.copy);
+    const t=b.textContent; b.textContent="✓ copied"; b.classList.add("ok");
+    setTimeout(()=>{b.textContent=t; b.classList.remove("ok");},1400);
+  }catch(_){ b.textContent="⌘C to copy"; }
+});
+
+// theme toggle
+const themeBtn = document.getElementById("themeBtn");
+themeBtn.addEventListener("click", ()=>{
+  const cur = document.documentElement.getAttribute("data-theme")
+    || (matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");
+  document.documentElement.setAttribute("data-theme", cur==="dark"?"light":"dark");
+});
+
+render();
+</script>
+</body>
+</html>
