@@ -6,36 +6,36 @@
 <title>Namecard Bot — Setup Walkthrough</title>
 <style>
   :root{
-    --paper:#eef0ec; --card:#ffffff; --card-edge:#e2e5df;
-    --ink:#1a1e1b; --muted:#5c645f; --faint:#8a908b;
-    --accent:#0d7368; --accent-deep:#0a5a52; --accent-soft:#d9ece9;
+    --paper:#edf1f5; --card:#ffffff; --card-edge:#dde3ea;
+    --ink:#101826; --muted:#55617a; --faint:#8790a3;
+    --accent:#064a75; --accent-deep:#053a5d; --accent-soft:#dcecf4; --cyan:#1f97b8;
     --stamp:#c8442e; --amber:#b9820b; --good:#16a34a;
-    --tab:#0d7368; --shadow:24px 24px 60px rgba(20,40,36,.10);
+    --tab:#064a75; --shadow:24px 24px 60px rgba(6,40,70,.12);
     --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
     --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   }
   @media (prefers-color-scheme:dark){
     :root{
-      --paper:#101413; --card:#191f1c; --card-edge:#28302c;
-      --ink:#e9ece8; --muted:#9aa39d; --faint:#6c746e;
-      --accent:#2ba99b; --accent-deep:#28b8a7; --accent-soft:#123430;
+      --paper:#0a1119; --card:#111a24; --card-edge:#223040;
+      --ink:#e8edf3; --muted:#98a4b4; --faint:#6c7688;
+      --accent:#35a3cc; --accent-deep:#48b7de; --accent-soft:#0e2f3f; --cyan:#4fc6e0;
       --stamp:#e06a54; --amber:#d3a441; --good:#3ec07a;
-      --tab:#2ba99b; --shadow:24px 24px 60px rgba(0,0,0,.45);
+      --tab:#35a3cc; --shadow:24px 24px 60px rgba(0,0,0,.45);
     }
   }
   :root[data-theme="light"]{
-    --paper:#eef0ec; --card:#ffffff; --card-edge:#e2e5df;
-    --ink:#1a1e1b; --muted:#5c645f; --faint:#8a908b;
-    --accent:#0d7368; --accent-deep:#0a5a52; --accent-soft:#d9ece9;
+    --paper:#edf1f5; --card:#ffffff; --card-edge:#dde3ea;
+    --ink:#101826; --muted:#55617a; --faint:#8790a3;
+    --accent:#064a75; --accent-deep:#053a5d; --accent-soft:#dcecf4; --cyan:#1f97b8;
     --stamp:#c8442e; --amber:#b9820b; --good:#16a34a;
-    --tab:#0d7368; --shadow:24px 24px 60px rgba(20,40,36,.10);
+    --tab:#064a75; --shadow:24px 24px 60px rgba(6,40,70,.12);
   }
   :root[data-theme="dark"]{
-    --paper:#101413; --card:#191f1c; --card-edge:#28302c;
-    --ink:#e9ece8; --muted:#9aa39d; --faint:#6c746e;
-    --accent:#2ba99b; --accent-deep:#28b8a7; --accent-soft:#123430;
+    --paper:#0a1119; --card:#111a24; --card-edge:#223040;
+    --ink:#e8edf3; --muted:#98a4b4; --faint:#6c7688;
+    --accent:#35a3cc; --accent-deep:#48b7de; --accent-soft:#0e2f3f; --cyan:#4fc6e0;
     --stamp:#e06a54; --amber:#d3a441; --good:#3ec07a;
-    --tab:#2ba99b; --shadow:24px 24px 60px rgba(0,0,0,.45);
+    --tab:#35a3cc; --shadow:24px 24px 60px rgba(0,0,0,.45);
   }
 
   *{box-sizing:border-box}
@@ -54,7 +54,7 @@
   .mast{display:flex; align-items:center; gap:12px; margin:4px 2px 20px}
   .mast .glyph{
     width:42px;height:42px;border-radius:10px;flex:0 0 auto;
-    background:var(--accent); color:#fff; display:grid; place-items:center;
+    background:linear-gradient(135deg,var(--accent),var(--cyan)); color:#fff; display:grid; place-items:center;
     font-size:22px; box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 40%, transparent);
   }
   .mast h1{font-size:17px; margin:0; letter-spacing:-.01em}
@@ -70,7 +70,7 @@
   .rail{display:flex; gap:5px; margin:0 2px 18px}
   .seg{height:5px; flex:1; border-radius:3px; background:var(--card-edge); transition:background .3s, transform .3s}
   .seg.done{background:var(--accent)}
-  .seg.cur{background:var(--accent); transform:scaleY(1.5)}
+  .seg.cur{background:var(--cyan); transform:scaleY(1.5)}
 
   /* Card */
   .card{
