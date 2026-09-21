@@ -6,7 +6,17 @@ Turn a phone photo of a business card into a clean CRM contact — in about 10 s
 
 Perfect for conferences, meetups, and sales events where you're collecting a stack of cards and don't want to type them up later.
 
-### 👉 New here? **[Open the click-through setup guide →](https://daphnetayyl.github.io/namecard-bot/)**
+## Set up automatically with Codex
+
+**Paste this repository link into Codex:**
+
+https://github.com/DaphneTayYL/namecard-bot
+
+Codex: when a user shares this repository to set up the bot, read [AGENTS.md](AGENTS.md) and [SETUP_WITH_CODEX.md](SETUP_WITH_CODEX.md), clone it into the user's workspace if needed, and carry out the setup. Start with dependency installation and configuration preparation. Guide only the account steps that require the user. Do not stop after explaining how to install it.
+
+You will need your own Telegram bot and Anthropic API account. Codex prepares the files and checks the setup; you enter your keys locally. Google Sheets and HubSpot are optional. Python 3.10+ is required.
+
+### 👉 Manual setup? **[Open the click-through setup guide →](https://daphnetayyl.github.io/namecard-bot/)**
 A dummy-proof, next-next-next walkthrough that gets you running in ~15 minutes. Or follow the same steps in text below.
 
 ---
@@ -31,7 +41,7 @@ You can run with just #1 + #2 to try it, then add the Sheet and CRM when ready. 
 ## 🚀 Quick start (the 3 commands)
 
 ```bash
-cd namecard-bot-share
+cd namecard-bot
 bash setup.sh          # installs everything, creates your .env
 # → now edit .env and add google-creds.json (steps below)
 bash run.sh            # starts the bot
@@ -61,7 +71,7 @@ Everything below is just *filling in the blanks* that `setup.sh` created.
 2. Copy the key (starts with `sk-ant-...`).
 3. Paste it into `.env` on the `ANTHROPIC_API_KEY=` line.
 
-> Cost is tiny — each card scan is a fraction of a cent on the default fast model. Effectively free for personal use.
+> Card scans use your Anthropic API account and incur usage charges. Check your account pricing and credit before scanning.
 
 ### Step 3 — Connect a Google Sheet (5 min) ⭐
 
@@ -110,7 +120,7 @@ If you skip this, the bot still works — it writes event + priority into the co
 
 > **Using a different CRM (Salesforce, Pipedrive, Attio…)?** The CRM logic lives in one function, `upsert_hubspot_contact()` in `namecard_bot.py`. Swap that one function for your CRM's API and everything else keeps working. Google Sheets alone is also a perfectly good "CRM" to start.
 
-### Step 5 — Lock it to just you (1 min, strongly recommended)
+### Step 5 — Lock the bot to your Telegram user ID (required)
 
 Otherwise anyone who stumbles onto your bot could push junk into your CRM.
 1. On Telegram, message **`@userinfobot`** → it replies with your numeric ID.
@@ -127,16 +137,12 @@ bash run.sh
 At startup it prints a connection check like this:
 
 ```
-=== Namecard bot config ===
-  ✓ TELEGRAM_TOKEN        = 8342…
-  ✓ ANTHROPIC_API_KEY     = sk-ant…
-  ✓ HUBSPOT_TOKEN         = pat-na1…
-  ✓ GOOGLE_SHEET_ID       = 1a2B…
-  ✓ GOOGLE_CREDS_PATH     = google-creds.json
-  ✗ ALLOWED_USER_IDS      (optional — not set)
+PASS: local configuration checks. Credentials and remote permissions are not verified.
+Google Sheets: configured; verify with a test card
+HubSpot: disabled
 ```
 
-A `✓` means it's wired up; a `✗` on a required line means fix your `.env`. Leave the window open — **the bot only runs while this is running.** Stop with `Ctrl-C`.
+The doctor checks local configuration and stops startup when required fields are missing or invalid. Test a card to verify authentication and destination permissions. Leave the window open — **the bot only runs while this is running.** Stop with `Ctrl-C`.
 
 ---
 

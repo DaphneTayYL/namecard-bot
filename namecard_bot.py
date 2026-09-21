@@ -80,13 +80,18 @@ GOOGLE_CREDS_PATH = _first_env(
     default="google-creds.json",
 )
 
-# Optional: lock the bot to your own Telegram user ID(s), comma-separated
+from doctor import main as check_configuration
+if check_configuration():
+    sys.exit(1)
+
+# Lock the bot to your own Telegram user ID(s), comma-separated
 ALLOWED_USER_IDS = {
     int(x) for x in os.environ.get("ALLOWED_USER_IDS", "").split(",") if x.strip()
 }
 
 VISION_MODEL = os.environ.get("VISION_MODEL", "claude-haiku-4-5-20251001")
 
+logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
@@ -108,8 +113,7 @@ def _check_env_and_print():
     missing_required = []
     for name, val, required in rows:
         if val:
-            shown = (val[:6] + "…") if len(val) > 12 and "PATH" not in name and "ID" not in name and "USER" not in name else val
-            print(f"  ✓ {name:<22} = {shown}")
+            print(f"  ✓ {name:<22} configured (not remotely verified)")
         else:
             tag = "REQUIRED" if required else "optional"
             print(f"  ✗ {name:<22} ({tag} — not set)")
@@ -520,7 +524,7 @@ async def handle_priority(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
     pri_label = {"H": "🔴 High", "M": "🟡 Medium", "L": "🟢 Low"}.get(priority, priority)
     status = (
-        f"✅ *Saved.*\n"
+        (f"✅ *Saved.*\n" if saved else f"⚠️ *Not saved to any destination.*\n") +
         f"*Event:* {_esc(event) or '(none)'}\n"
         f"*Contact:* {_esc(name) or '—'}  {_esc(email) or 'no-email'}\n"
         f"*Priority:* {pri_label}\n"

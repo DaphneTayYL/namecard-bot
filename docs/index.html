@@ -185,6 +185,10 @@
     .btn{padding:11px 15px; font-size:14px}
   }
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* Compact setup workspace */
+:root,:root[data-theme="light"]{--paper:#f5f7f9;--card:#fff;--card-edge:#dfe6ef;--ink:#101623;--muted:#55657a;--accent:#197d87;--accent-soft:#edf4f6;--cyan:#29bdc5;--shadow:0 2px 8px #10162306}
+body{background-image:none;font-size:14px}.wrap{max-width:760px}.mast{background:var(--card);padding:16px;border:1px solid var(--card-edge);border-radius:10px}.mast .glyph{background:var(--accent-soft);box-shadow:none}.card{border-radius:12px}.card h2{font-size:24px}.lede,ol.steps li{font-size:14px}.btn.next{background:#080808;box-shadow:none}.codex-panel{background:var(--card);border:1px solid var(--card-edge);border-radius:12px;padding:24px;margin-bottom:24px}.codex-panel h2{font-size:18px;margin:0 0 8px}.codex-panel p{font-size:14px}.codex-panel textarea{display:block;width:100%;min-height:72px;resize:vertical;border:1px solid var(--card-edge);border-radius:8px;background:var(--paper);color:var(--ink);padding:14px;font:13px/1.6 var(--sans);margin:12px 0}.codex-panel button{margin-top:8px}.codex-panel label{font-size:13px;font-weight:600}:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
 </style>
 </head>
 <body>
@@ -193,11 +197,22 @@
     <div class="glyph">📇</div>
     <div>
       <h1>Namecard Bot</h1>
-      <p>Business cards → your CRM, from Telegram. Set it up in ~15 min.</p>
+      <p>Business cards → your CRM, from Telegram. Set up with Codex, using your own accounts.</p>
     </div>
     <button class="theme-btn" id="themeBtn" type="button">◑ theme</button>
   </div>
 
+  <section class="codex-panel" aria-labelledby="codex-title">
+    <h2 id="codex-title">Set up with Codex</h2>
+    <p>Let Codex install the bot and check your configuration. You connect your own accounts and enter keys privately on your computer.</p>
+    <p>Paste this GitHub link into Codex. It will read the repository’s setup instructions, install the bot, and guide the account steps.</p>
+    <label for="codexPrompt">Repository link</label>
+    <textarea id="codexPrompt" readonly>https://github.com/DaphneTayYL/namecard-bot</textarea>
+    <button type="button" class="btn next" id="copyCodex">Copy GitHub link</button>
+    <p id="copyStatus" role="status"></p>
+    <p>You'll need Python 3.10+, Telegram, and an Anthropic API account. Google Sheets and HubSpot are optional. API usage is billed to your Anthropic account. Your computer must stay awake while the bot runs.</p>
+    <p><a href="SETUP_WITH_CODEX.md">Read the Codex setup instructions</a> · Or follow the manual guide below.</p>
+  </section>
   <div class="rail" id="rail"></div>
 
   <main class="card" id="card" aria-live="polite"></main>
@@ -216,6 +231,11 @@
 
 <script>
 // ---- point these at the repo once it exists ----
+document.getElementById("copyCodex").addEventListener("click", async () => {
+  const field = document.getElementById("codexPrompt");
+  try { await navigator.clipboard.writeText(field.value); document.getElementById("copyStatus").textContent = "Copied. Paste the link into Codex to set up your bot."; }
+  catch { field.focus(); field.select(); document.getElementById("copyStatus").textContent = "Link selected. Press Ctrl+C or Command+C to copy."; }
+});
 const OWNER = "DaphneTayYL";
 const REPO  = "namecard-bot";
 const REPO_URL = `https://github.com/${OWNER}/${REPO}`;
@@ -284,7 +304,7 @@ const STEPS = [
         <li>Copy the key — it starts with <code>sk-ant-</code>.</li>
       </ol>
       ${envTarget("ANTHROPIC_API_KEY=")}
-      <div class="note"><span class="ic">💸</span><div>Each card scan costs a fraction of a cent on the default fast model. Effectively free for personal use.</div></div>`,
+      <div class="note"><span class="ic">💸</span><div>Scans use your Anthropic API account. Check pricing and available credit in your account before scanning.</div></div>`,
   },
   { // 5 — google sheet
     eyebrow:"Step 5 · 5 min", title:"Connect a Google Sheet",
@@ -328,7 +348,7 @@ const STEPS = [
   },
   { // 7 — lock
     eyebrow:"Step 7 · 1 min", title:"Lock the bot to just you",
-    stamps:`<span class="stamp rec">◆ Recommended</span>`,
+    stamps:`<span class="stamp req">● Required</span>`,
     lede:"Otherwise anyone who finds your bot could push junk into your CRM.",
     body:`
       <ol class="steps">
@@ -396,6 +416,7 @@ function go(d){
 nextBtn.addEventListener("click", ()=>go(1));
 backBtn.addEventListener("click", ()=>go(-1));
 document.addEventListener("keydown", e=>{
+  if(e.target.matches("textarea,input,select")) return;
   if(e.key==="ArrowRight") go(1);
   if(e.key==="ArrowLeft") go(-1);
 });
