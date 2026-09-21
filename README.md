@@ -2,7 +2,7 @@
 
 Turn a phone photo of a business card into a clean CRM contact — in about 10 seconds, from Telegram.
 
-> **Snap a card → Claude reads the name / email / company / title / phone → the bot asks you for meeting notes + a priority (🔴/🟡/🟢) → it writes a row to your Google Sheet AND upserts the contact into your CRM, tagged with the event you're at.**
+> **Snap a card → Claude or OpenAI reads the name / email / company / title / phone → the bot asks you for meeting notes + a priority (🔴/🟡/🟢) → it writes a row to your Google Sheet AND upserts the contact into your CRM, tagged with the event you're at.**
 
 Perfect for conferences, meetups, and sales events where you're collecting a stack of cards and don't want to type them up later.
 
@@ -14,7 +14,7 @@ https://github.com/DaphneTayYL/namecard-bot
 
 Codex: when a user shares this repository to set up the bot, read [AGENTS.md](AGENTS.md) and [SETUP_WITH_CODEX.md](SETUP_WITH_CODEX.md), clone it into the user's workspace if needed, and carry out the setup. Start with dependency installation and configuration preparation. Guide only the account steps that require the user. Do not stop after explaining how to install it.
 
-You will need your own Telegram bot and Anthropic API account. Codex prepares the files and checks the setup; you enter your keys locally. Google Sheets and HubSpot are optional. Python 3.10+ is required.
+You will need your own Telegram bot and a Claude or OpenAI API account. Codex prepares the files and checks the setup; you enter your keys locally. Google Sheets and HubSpot are optional. Python 3.10+ is required.
 
 ### 👉 Manual setup? **[Open the click-through setup guide →](https://daphnetayyl.github.io/namecard-bot/)**
 A dummy-proof, next-next-next walkthrough that gets you running in ~15 minutes. Or follow the same steps in text below.
@@ -28,7 +28,7 @@ This folder is a **template you make your own.** You are going to plug in **your
 | # | You connect… | Why | Required? |
 |---|--------------|-----|-----------|
 | 1 | **Your own Telegram bot** | This is *your* private bot. You message it, nobody else. | ✅ Required |
-| 2 | **An Anthropic (Claude) API key** | Reads the text off the card photo. | ✅ Required |
+| 2 | **A Claude / OpenAI API key** | Reads the text off the card photo. | ✅ Required |
 | 3 | **A Google Sheet** | One tidy row per contact — your master list. | ⭐ Recommended |
 | 4 | **A CRM (HubSpot)** | Auto-creates/updates the contact + logs a note. | ⭐ Recommended |
 
@@ -65,13 +65,18 @@ Everything below is just *filling in the blanks* that `setup.sh` created.
 
 > This token *is* your bot. Anyone with it can control the bot — keep it private (it's already gitignored).
 
-### Step 2 — Get a Claude API key (2 min)
+### Step 2 — Get a Claude / OpenAI API key (2 min)
 
-1. Go to **https://console.anthropic.com** → sign in → **Settings → API keys → Create key**.
-2. Copy the key (starts with `sk-ant-...`).
-3. Paste it into `.env` on the `ANTHROPIC_API_KEY=` line.
+Choose **one** provider and enter its key locally in `.env`:
 
-> Card scans use your Anthropic API account and incur usage charges. Check your account pricing and credit before scanning.
+| Provider | Create your key | Settings in `.env` |
+|---|---|---|
+| Claude (Anthropic) | [Anthropic Console](https://console.anthropic.com) → API keys | `VISION_PROVIDER=anthropic` and `ANTHROPIC_API_KEY=your-key` |
+| OpenAI | [OpenAI API keys](https://platform.openai.com/api-keys) | `VISION_PROVIDER=openai` and `OPENAI_API_KEY=your-key` |
+
+Leave the other key empty. Leave `VISION_MODEL` empty to use the provider default: `claude-haiku-4-5-20251001` for Claude or `gpt-4.1-mini` for OpenAI. When switching providers, clear any old model override. Existing Claude configurations continue to work. If `VISION_PROVIDER` is omitted, an OpenAI-only key selects OpenAI; otherwise Claude is the default.
+
+API usage is billed to your selected provider. Enter keys in `.env`, never in chat. The OpenAI integration follows the [image input documentation](https://developers.openai.com/api/docs/guides/images-vision).
 
 ### Step 3 — Connect a Google Sheet (5 min) ⭐
 
@@ -194,4 +199,4 @@ namecard-bot-share/
 
 ---
 
-Built with Claude vision + `python-telegram-bot`. One file, no database, no server required to get started.
+Built with Claude / OpenAI vision + `python-telegram-bot`. No database, no server required to get started.

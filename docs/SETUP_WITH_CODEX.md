@@ -4,13 +4,13 @@ Paste https://github.com/DaphneTayYL/namecard-bot into Codex and ask it to set u
 
 For Codex: clone this repository into the current workspace if it is not already present. Read AGENTS.md and continue through installation, local configuration validation, startup, and a user-run test. Sharing this repository in a setup request authorizes the local installation and startup. Preserve existing settings. Ask only for missing account choices or user-owned account actions; never ask the user to paste secrets into chat.
 
-Codex can install dependencies, prepare your configuration, diagnose errors, and help start the bot. You handle sign-ins, account creation, billing, and entering your keys. A Codex subscription does not provide the Anthropic API key used by this bot; card scans use your Anthropic API account.
+Codex can install dependencies, prepare your configuration, diagnose errors, and help start the bot. You handle sign-ins, account creation, billing, and entering your keys. A Codex subscription does not provide the API key used by this bot; card scans use your selected Claude or OpenAI API account.
 
 ## What you need
 
 - Codex available on your computer and Python 3.10 or newer.
 - Telegram: open the verified @BotFather account and use /newbot to create a bot. Enter the returned token into TELEGRAM_TOKEN in your local .env.
-- An Anthropic API account: create a key in its console and enter it into ANTHROPIC_API_KEY locally.
+- A Claude or OpenAI API account: follow Step 2 in README.md, set VISION_PROVIDER, and enter only the matching API key locally. Leave VISION_MODEL blank to use the provider default.
 - Your numeric Telegram user ID: obtain it from @userinfobot and enter it into ALLOWED_USER_IDS. This setup requires an allowlist.
 - Optional destinations: follow the Google Sheets and HubSpot sections in README.md. Leave unused destination values empty. Without a destination, scanned contacts are not persisted by the bot.
 

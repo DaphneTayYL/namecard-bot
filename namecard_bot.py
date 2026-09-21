@@ -27,7 +27,6 @@ from telegram.ext import (
     ConversationHandler, ContextTypes, filters,
 )
 
-from anthropic import Anthropic
 import gspread
 from google.oauth2.service_account import Credentials
 
@@ -89,7 +88,11 @@ ALLOWED_USER_IDS = {
     int(x) for x in os.environ.get("ALLOWED_USER_IDS", "").split(",") if x.strip()
 }
 
-VISION_MODEL = os.environ.get("VISION_MODEL", "claude-haiku-4-5-20251001")
+from doctor import selected_provider
+VISION_PROVIDER = selected_provider(os.environ)
+OPENAI_API_KEY = _first_env("OPENAI_API_KEY")
+VISION_API_KEY = OPENAI_API_KEY if VISION_PROVIDER == "openai" else ANTHROPIC_API_KEY
+VISION_MODEL = _first_env("VISION_MODEL", default=("gpt-4.1-mini" if VISION_PROVIDER == "openai" else "claude-haiku-4-5-20251001"))
 
 logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.basicConfig(
@@ -103,7 +106,7 @@ def _check_env_and_print():
     """Show what was loaded so missing vars are obvious at startup."""
     rows = [
         ("TELEGRAM_TOKEN",    TELEGRAM_TOKEN,    True),
-        ("ANTHROPIC_API_KEY", ANTHROPIC_API_KEY, True),
+        ("OPENAI_API_KEY" if VISION_PROVIDER == "openai" else "ANTHROPIC_API_KEY", VISION_API_KEY, True),
         ("HUBSPOT_TOKEN",     HUBSPOT_TOKEN,     False),
         ("GOOGLE_SHEET_ID",   GOOGLE_SHEET_ID,   False),
         ("GOOGLE_CREDS_PATH", GOOGLE_CREDS_PATH, False),
@@ -132,60 +135,20 @@ def _check_env_and_print():
 
 
 _check_env_and_print()
-anthropic = Anthropic(api_key=ANTHROPIC_API_KEY)
+
 
 # Conversation states
 NOTES, PRIORITY = range(2)
 
 
 # -----------------------------------------------------------------------------
-# Vision: extract namecard fields with Claude
+# Vision: extract namecard fields with Claude or OpenAI
 # -----------------------------------------------------------------------------
-EXTRACTION_PROMPT = (
-    "You are extracting structured contact data from a business card image. "
-    "Return ONLY a JSON object (no prose, no code fences) with exactly these keys: "
-    '"name", "email", "company", "title", "phone". '
-    "Use an empty string for any field that is not present. "
-    "If the name appears in CJK characters, prefer the Latin/English version if both exist."
-)
+from vision import extract_namecard as extract_with_provider
 
 def extract_namecard(image_bytes: bytes, mime_type: str = "image/jpeg") -> dict:
-    b64 = base64.standard_b64encode(image_bytes).decode("utf-8")
-    msg = anthropic.messages.create(
-        model=VISION_MODEL,
-        max_tokens=400,
-        messages=[{
-            "role": "user",
-            "content": [
-                {
-                    "type": "image",
-                    "source": {"type": "base64", "media_type": mime_type, "data": b64},
-                },
-                {"type": "text", "text": EXTRACTION_PROMPT},
-            ],
-        }],
-    )
-    text = msg.content[0].text.strip()
-    # Defensive: strip code fences if model returns them
-    if text.startswith("```"):
-        text = text.strip("`")
-        if text.lower().startswith("json"):
-            text = text[4:]
-        text = text.strip()
-    try:
-        data = json.loads(text)
-    except json.JSONDecodeError:
-        log.warning("Bad JSON from vision model: %s", text)
-        data = {}
-    # Normalise
-    return {
-        "name":    (data.get("name") or "").strip(),
-        "email":   (data.get("email") or "").strip(),
-        "company": (data.get("company") or "").strip(),
-        "title":   (data.get("title") or "").strip(),
-        "phone":   (data.get("phone") or "").strip(),
-    }
-
+    return extract_with_provider(image_bytes, mime_type, provider=VISION_PROVIDER,
+                                 api_key=VISION_API_KEY, model=VISION_MODEL)
 
 # -----------------------------------------------------------------------------
 # Storage: Google Sheets
@@ -433,10 +396,10 @@ async def handle_photo(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         await msg.edit_text(f"❌ Couldn't download the photo: {e}\nTry sending a smaller photo or as a compressed image.")
         return ConversationHandler.END
 
-    await msg.edit_text("📇 Extracting fields with Claude…")
+    await msg.edit_text("📇 Extracting fields with your selected AI provider…")
 
     try:
-        # Run sync Anthropic call in a thread so it doesn't block the event loop
+        # Run sync vision call in a thread so it doesn't block the event loop
         data = await asyncio.to_thread(extract_namecard, image_bytes, mime)
     except Exception as e:
         log.exception("Vision extraction failed")

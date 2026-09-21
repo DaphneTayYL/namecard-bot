@@ -210,7 +210,7 @@ body{background-image:none;font-size:14px}.wrap{max-width:760px}.mast{background
     <textarea id="codexPrompt" readonly>https://github.com/DaphneTayYL/namecard-bot</textarea>
     <button type="button" class="btn next" id="copyCodex">Copy GitHub link</button>
     <p id="copyStatus" role="status"></p>
-    <p>You'll need Python 3.10+, Telegram, and an Anthropic API account. Google Sheets and HubSpot are optional. API usage is billed to your Anthropic account. Your computer must stay awake while the bot runs.</p>
+    <p>You'll need Python 3.10+, Telegram, and a Claude or OpenAI API account. Google Sheets and HubSpot are optional. API usage is billed to your selected provider. Your computer must stay awake while the bot runs.</p>
     <p><a href="SETUP_WITH_CODEX.md">Read the Codex setup instructions</a> · Or follow the manual guide below.</p>
   </section>
   <div class="rail" id="rail"></div>
@@ -254,7 +254,7 @@ const STEPS = [
     body:`
       <table class="connect">
         <tr><td class="who">Your Telegram bot</td><td>The private bot you’ll message.</td><td class="tag r">Required</td></tr>
-        <tr><td class="who">Claude API key</td><td>Reads the text off each card photo.</td><td class="tag r">Required</td></tr>
+        <tr><td class="who">Claude / OpenAI API key</td><td>Reads the text off each card photo.</td><td class="tag r">Required</td></tr>
         <tr><td class="who">Google Sheet</td><td>One clean row per contact — your master list.</td><td class="tag o">Recommended</td></tr>
         <tr><td class="who">A CRM (HubSpot)</td><td>Auto-creates the contact + logs a note.</td><td class="tag o">Recommended</td></tr>
       </table>
@@ -294,17 +294,16 @@ const STEPS = [
       <div class="note warn"><span class="ic">🔒</span><div>That token <b>is</b> your bot — keep it private. It’s already ignored by git so it can’t be committed.</div></div>`,
   },
   { // 4 — claude key
-    eyebrow:"Step 4 · 2 min", title:"Get a Claude (Anthropic) API key",
+    eyebrow:"Step 4 · 2 min", title:"Get a Claude / OpenAI API key",
     stamps:`<span class="stamp req">● Required</span>`,
     lede:"This is the “eyes” that read each business card.",
     body:`
       <ol class="steps">
-        <li>Go to <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a> and sign in.</li>
-        <li>Open <b>Settings → API keys → Create key</b>.</li>
-        <li>Copy the key — it starts with <code>sk-ant-</code>.</li>
+        <li><b>Choose one provider:</b> Claude (Anthropic) or OpenAI.</li>
+        <li><b>Claude:</b> create a key at <a href="https://console.anthropic.com" target="_blank" rel="noopener">Anthropic Console</a>. Set <code>VISION_PROVIDER=anthropic</code> and fill <code>ANTHROPIC_API_KEY</code> in your local <code>.env</code>.</li>
+        <li><b>OpenAI:</b> create a key at <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">OpenAI API keys</a>. Set <code>VISION_PROVIDER=openai</code> and fill <code>OPENAI_API_KEY</code> in your local <code>.env</code>.</li>
       </ol>
-      ${envTarget("ANTHROPIC_API_KEY=")}
-      <div class="note"><span class="ic">💸</span><div>Scans use your Anthropic API account. Check pricing and available credit in your account before scanning.</div></div>`,
+      <div class="note"><span class="ic">🔑</span><div>You only need one key. Leave the other empty. Leave <code>VISION_MODEL</code> blank to use the provider default; clear old model overrides when switching providers. Scans are billed to your selected API account.</div></div>`,
   },
   { // 5 — google sheet
     eyebrow:"Step 5 · 5 min", title:"Connect a Google Sheet",

@@ -7,11 +7,21 @@ import sys
 
 ROOT = Path(__file__).resolve().parent
 
+def selected_provider(config):
+    explicit = config.get('VISION_PROVIDER', '').strip().lower()
+    if explicit:
+        return explicit
+    return 'openai' if config.get('OPENAI_API_KEY', '').strip() and not (config.get('ANTHROPIC_API_KEY', '').strip() or config.get('CLAUDE_API_KEY', '').strip()) else 'anthropic'
+
 def validate(config, root=ROOT):
     issues = []
     def placeholder(value):
         return any(marker in value.lower() for marker in ('...', '…', 'your-', 'replace', 'changeme'))
-    for key in ('TELEGRAM_TOKEN', 'ANTHROPIC_API_KEY'):
+    provider = selected_provider(config)
+    if provider not in ('anthropic', 'openai'):
+        issues.append('VISION_PROVIDER: choose anthropic or openai.')
+    provider_key = 'OPENAI_API_KEY' if provider == 'openai' else 'ANTHROPIC_API_KEY'
+    for key in ('TELEGRAM_TOKEN', provider_key):
         value = config.get(key, '').strip()
         if not value or placeholder(value):
             issues.append(f'{key}: enter your own value in .env.')
